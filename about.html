@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="About Life in Numbers — Our mission, methodology, and the team behind the financial literacy simulator.">
+    <title>About — Life in Numbers</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .about-hero {
+            padding: calc(80px + var(--space-16)) 0 var(--space-12);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .about-hero::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.06) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .about-hero h1 {
+            position: relative;
+        }
+
+        .about-hero .subtitle {
+            position: relative;
+            max-width: 700px;
+        }
+
+        /* Mission */
+        .mission-section {
+            padding: var(--space-16) 0;
+        }
+
+        .mission-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-12);
+            align-items: center;
+        }
+
+        .mission-text h2 {
+            margin-bottom: var(--space-4);
+        }
+
+        .mission-text p {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: var(--space-4);
+        }
+
+        .mission-visual {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+        }
+
+        .mission-stat-card {
+            display: flex;
+            align-items: center;
+            gap: var(--space-5);
+            padding: var(--space-5) var(--space-6);
+        }
+
+        .mission-stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .mission-stat-value {
+            font-size: var(--text-2xl);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .mission-stat-label {
+            font-size: var(--text-sm);
+            color: var(--text-muted);
+        }
+
+        /* Methodology */
+        .method-section {
+            padding: var(--space-16) 0;
+        }
+
+        .method-header {
+            text-align: center;
+            margin-bottom: var(--space-12);
+        }
+
+        .method-header .label {
+            display: block;
+            margin-bottom: var(--space-4);
+        }
+
+        .method-steps {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--space-6);
+            position: relative;
+        }
+
+        .method-steps::before {
+            content: '';
+            position: absolute;
+            top: 35px;
+            left: 12.5%;
+            right: 12.5%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--emerald-500), var(--blue-500));
+            opacity: 0.2;
+            z-index: 0;
+        }
+
+        .method-step {
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            padding: var(--space-6);
+        }
+
+        .step-number {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--text-lg);
+            font-weight: 800;
+            margin: 0 auto var(--space-4);
+            background: linear-gradient(135deg, var(--emerald-500), var(--blue-500));
+            color: white;
+            box-shadow: 0 0 20px var(--emerald-glow);
+        }
+
+        .method-step h4 {
+            font-size: var(--text-base);
+            font-weight: 600;
+            margin-bottom: var(--space-2);
+        }
+
+        .method-step p {
+            font-size: var(--text-sm);
+            color: var(--text-muted);
+            line-height: 1.7;
+        }
+
+        /* Values */
+        .values-section {
+            padding: var(--space-16) 0;
+        }
+
+        .values-header {
+            text-align: center;
+            margin-bottom: var(--space-12);
+        }
+
+        .values-header .label {
+            display: block;
+            margin-bottom: var(--space-4);
+        }
+
+        .value-card {
+            padding: var(--space-8);
+            text-align: center;
+        }
+
+        .value-icon {
+            font-size: 2rem;
+            margin-bottom: var(--space-4);
+        }
+
+        .value-card h4 {
+            font-size: var(--text-lg);
+            font-weight: 600;
+            margin-bottom: var(--space-3);
+        }
+
+        .value-card p {
+            font-size: var(--text-sm);
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* Team */
+        .team-section {
+            padding: var(--space-16) 0;
+        }
+
+        .team-header {
+            text-align: center;
+            margin-bottom: var(--space-12);
+        }
+
+        .team-header .label {
+            display: block;
+            margin-bottom: var(--space-4);
+        }
+
+        .team-card {
+            text-align: center;
+            padding: var(--space-8);
+        }
+
+        .team-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto var(--space-4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--navy-600), var(--navy-500));
+            border: 2px solid var(--border-glass);
+        }
+
+        .team-card h4 {
+            font-size: var(--text-base);
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .team-role {
+            font-size: var(--text-sm);
+            color: var(--emerald-400);
+            font-weight: 500;
+            margin-bottom: var(--space-3);
+        }
+
+        .team-card p {
+            font-size: var(--text-sm);
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* Contact CTA */
+        .contact-section {
+            padding: var(--space-16) 0;
+            text-align: center;
+        }
+
+        .contact-card {
+            background: linear-gradient(135deg, var(--navy-700), var(--navy-800));
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-2xl);
+            padding: var(--space-16) var(--space-8);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.04) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .contact-card h2,
+        .contact-card p,
+        .contact-card .btn {
+            position: relative;
+        }
+
+        @media (max-width: 1024px) {
+            .method-steps {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .method-steps::before {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .mission-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .method-steps {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ═══ Navigation ═══════════════════════════════════════ -->
+    <nav class="navbar scrolled" id="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-logo">
+                <div class="logo-icon">LN</div>
+                <span>Life in Numbers</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="projection.html">Projections</a></li>
+                <li><a href="insights.html">Insights</a></li>
+                <li><a href="about.html" class="active">About</a></li>
+                <li><a href="dashboard.html" class="nav-cta">Start Simulation</a></li>
+            </ul>
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">☰</button>
+        </div>
+    </nav>
+
+    <!-- ═══ Hero ═════════════════════════════════════════════ -->
+    <section class="about-hero">
+        <div class="container">
+            <span class="badge animate-fade-in-up" style="position:relative;">✦ Our Story</span>
+            <h1 class="heading-1 animate-fade-in-up delay-1" style="margin-top:var(--space-6);">
+                Making Financial Literacy<br>
+                <span class="text-gradient">Unmistakably Clear.</span>
+            </h1>
+            <p class="subtitle animate-fade-in-up delay-2" style="margin: var(--space-6) auto 0;">
+                We believe that everyone deserves to see the long-term consequences of their financial decisions
+                before they make them — not after it's too late.
+            </p>
+        </div>
+    </section>
+
+    <div class="container">
+
+        <!-- ═══ Mission ════════════════════════════════════════ -->
+        <section class="mission-section">
+            <div class="mission-grid">
+                <div class="mission-text reveal">
+                    <span class="label label-emerald" style="display:block;margin-bottom:var(--space-4);">Our
+                        Mission</span>
+                    <h2 class="heading-3">Empowering Smarter Financial Decisions Through Simulation</h2>
+                    <p>Life in Numbers was born from a simple observation: people don't struggle with finances because
+                        they're irresponsible — they struggle because the consequences of daily decisions are invisible
+                        until years later.</p>
+                    <p>Our simulator makes those consequences visible, tangible, and emotionally real. We turn abstract
+                        numbers into compelling visual stories that change behavior.</p>
+                    <p>We don't lecture. We don't judge. We simulate, visualize, and let the data speak for itself.</p>
+                </div>
+
+                <div class="mission-visual reveal delay-2">
+                    <div class="glass-card-sm mission-stat-card">
+                        <div class="mission-stat-icon"
+                            style="background:rgba(16,185,129,0.1);color:var(--emerald-400);">📊</div>
+                        <div>
+                            <div class="mission-stat-value" style="color:var(--emerald-400);">52K+</div>
+                            <div class="mission-stat-label">Simulations completed</div>
+                        </div>
+                    </div>
+                    <div class="glass-card-sm mission-stat-card">
+                        <div class="mission-stat-icon" style="background:rgba(59,130,246,0.1);color:var(--blue-400);">🌍
+                        </div>
+                        <div>
+                            <div class="mission-stat-value" style="color:var(--blue-400);">34</div>
+                            <div class="mission-stat-label">Countries reached</div>
+                        </div>
+                    </div>
+                    <div class="glass-card-sm mission-stat-card">
+                        <div class="mission-stat-icon" style="background:rgba(245,158,11,0.1);color:var(--gold-400);">⭐
+                        </div>
+                        <div>
+                            <div class="mission-stat-value" style="color:var(--gold-400);">4.9/5</div>
+                            <div class="mission-stat-label">Average user rating</div>
+                        </div>
+                    </div>
+                    <div class="glass-card-sm mission-stat-card">
+                        <div class="mission-stat-icon" style="background:rgba(239,68,68,0.1);color:var(--coral-400);">💡
+                        </div>
+                        <div>
+                            <div class="mission-stat-value" style="color:var(--coral-400);">89%</div>
+                            <div class="mission-stat-label">Users improved their savings</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ Methodology ════════════════════════════════════ -->
+        <section class="method-section" id="methodology">
+            <div class="method-header reveal">
+                <span class="label label-blue">Methodology</span>
+                <h2 class="heading-3">How Our Simulation Works</h2>
+                <p class="subtitle" style="margin:var(--space-4) auto 0;">Powered by real economic models and validated
+                    against historical financial data.</p>
+            </div>
+
+            <div class="method-steps">
+                <div class="glass-card-sm method-step reveal delay-1">
+                    <div class="step-number">1</div>
+                    <h4>Input Parameters</h4>
+                    <p>You set your income, savings rate, loan obligations, and lifestyle spending preferences.</p>
+                </div>
+
+                <div class="glass-card-sm method-step reveal delay-2">
+                    <div class="step-number">2</div>
+                    <h4>Economic Modeling</h4>
+                    <p>Our engine applies compound interest, inflation adjustment, loan amortization, and market return
+                        models.</p>
+                </div>
+
+                <div class="glass-card-sm method-step reveal delay-3">
+                    <div class="step-number">3</div>
+                    <h4>Scenario Comparison</h4>
+                    <p>We generate parallel timelines — disciplined vs. impulsive — to reveal the true cost of each
+                        decision.</p>
+                </div>
+
+                <div class="glass-card-sm method-step reveal delay-4">
+                    <div class="step-number">4</div>
+                    <h4>Actionable Insights</h4>
+                    <p>Clear visualizations and specific recommendations make the projected outcomes actionable and
+                        unforgettable.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ Values ═════════════════════════════════════════ -->
+        <section class="values-section">
+            <div class="values-header reveal">
+                <span class="label label-emerald">Our Values</span>
+                <h2 class="heading-3">Principles We Build On</h2>
+            </div>
+
+            <div class="grid-3">
+                <div class="glass-card value-card reveal delay-1">
+                    <div class="value-icon">🔍</div>
+                    <h4>Radical Transparency</h4>
+                    <p>Every calculation is visible. Every assumption is disclosed. We show our work because trust is
+                        earned through openness.</p>
+                </div>
+
+                <div class="glass-card value-card reveal delay-2">
+                    <div class="value-icon">🎯</div>
+                    <h4>Data Over Opinion</h4>
+                    <p>We don't tell you what to do. We show you what happens mathematically and let you make informed
+                        decisions.</p>
+                </div>
+
+                <div class="glass-card value-card reveal delay-3">
+                    <div class="value-icon">🌱</div>
+                    <h4>Accessible to Everyone</h4>
+                    <p>Financial literacy shouldn't require a finance degree. Our interface is designed for clarity, not
+                        complexity.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ Team ═══════════════════════════════════════════ -->
+        <section class="team-section" id="team">
+            <div class="team-header reveal">
+                <span class="label label-blue">The Team</span>
+                <h2 class="heading-3">Built by People Who Care</h2>
+                <p class="subtitle" style="margin:var(--space-4) auto 0;">A small team of economists, designers, and
+                    engineers on a mission.</p>
+            </div>
+
+            <div class="grid-4">
+                <div class="glass-card team-card reveal delay-1">
+                    <div class="team-avatar">👨‍💻</div>
+                    <h4>Diwash Koirala</h4>
+                    <div class="team-role">CEO & Co-Founder</div>
+                    <p>Founded Nova Veil. Passionate about democratizing financial intelligence.</p>
+                </div>
+
+                <div class="glass-card team-card reveal delay-2">
+                    <div class="team-avatar">👨‍💻</div>
+                    <h4>Aayush Adhikari</h4>
+                    <div class="team-role">CTO & Co-Founder</div>
+                    <p>Engineer. Builds beautiful, performant tools for complex problems.</p>
+                </div>
+
+                <div class="glass-card team-card reveal delay-3">
+                    <div class="team-avatar">👩‍🎨</div>
+                    <h4>Aayush Shah</h4>
+                    <div class="team-role">Head of Design</div>
+                    <p>Award-winning designer. Believes financial tools should feel as good as they work.</p>
+                </div>
+
+                <div class="glass-card team-card reveal delay-4">
+                    <div class="team-avatar">👨‍🔬</div>
+                    <h4>Diwash Koirala</h4>
+                    <div class="team-role">Lead Economist</div>
+                    <p>Expert in Behavioral Economics. Ensures our models reflect real-world financial behavior.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ Contact CTA ════════════════════════════════════ -->
+        <section class="contact-section">
+            <div class="contact-card reveal">
+                <h2 class="heading-2">Have a Question?<br><span class="text-gradient">We'd Love to Hear From You.</span>
+                </h2>
+                <p style="color:var(--text-secondary);max-width:500px;margin:var(--space-4) auto var(--space-8);">
+                    Whether you're an educator, investor, or just curious — reach out and let's talk.
+                </p>
+                <a href="mailto:hello@lifeinnumbers.io" class="btn btn-primary btn-lg">Get in Touch →</a>
+            </div>
+        </section>
+    </div>
+
+    <!-- ═══ Footer ═══════════════════════════════════════════ -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="index.html" class="nav-logo" style="margin-bottom: var(--space-2);">
+                        <div class="logo-icon">LN</div>
+                        <span>Life in Numbers</span>
+                    </a>
+                    <p>Empowering smarter financial decisions through data-driven simulation and visualization.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Product</h4>
+                    <ul>
+                        <li><a href="dashboard.html">Dashboard</a></li>
+                        <li><a href="projection.html">Projections</a></li>
+                        <li><a href="insights.html">Insights</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="about.html#methodology">Methodology</a></li>
+                        <li><a href="about.html#team">Team</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Connect</h4>
+                    <ul>
+                        <li><a href="#">Twitter</a></li>
+                        <li><a href="#">LinkedIn</a></li>
+                        <li><a href="#">GitHub</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>© 2026 Life in Numbers. All rights reserved.</span>
+                <span>Built with purpose.</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // ── Scroll Reveal ──
+        document.querySelectorAll('.reveal').forEach(el => {
+            new IntersectionObserver(entries => {
+                if (entries[0].isIntersecting) el.classList.add('visible');
+            }, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' }).observe(el);
+        });
+
+        // ── Mobile menu ──
+        const mobileBtn = document.getElementById('mobileMenuBtn');
+        const navLinks = document.querySelector('.nav-links');
+        if (mobileBtn && navLinks) {
+            mobileBtn.addEventListener('click', () => {
+                const isOpen = navLinks.style.display === 'flex';
+                navLinks.style.display = isOpen ? 'none' : 'flex';
+                navLinks.style.flexDirection = 'column';
+                navLinks.style.position = 'absolute';
+                navLinks.style.top = '100%';
+                navLinks.style.left = '0';
+                navLinks.style.right = '0';
+                navLinks.style.background = 'rgba(10,14,26,0.95)';
+                navLinks.style.backdropFilter = 'blur(20px)';
+                navLinks.style.padding = '1rem';
+            });
+        }
+    </script>
+</body>
+
+</html>

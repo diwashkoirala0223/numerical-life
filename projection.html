@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Life in Numbers — Compare Smart vs Impulsive financial outcomes over 10 years.">
+    <title>Future Projections — Life in Numbers</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles-advanced.css">
+    <style>
+        /* ... (existing styles) ... */
+    </style>
+</head>
+
+<body>
+
+    <!-- ═══ Navigation ═══════════════════════════════════════ -->
+    <nav class="navbar scrolled" id="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-logo">
+                <div class="logo-icon">LN</div>
+                <span>Life in Numbers</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="projection.html" class="active">Projections</a></li>
+                <li><a href="insights.html">Insights</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="dashboard.html" class="nav-cta">Start Simulation</a></li>
+            </ul>
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">☰</button>
+        </div>
+    </nav>
+
+    <!-- ═══ Header ═══════════════════════════════════════════ -->
+    <section class="proj-hero">
+        <div class="container">
+            <div class="proj-hero animate-fade-in-up">
+                <span class="label label-emerald"
+                    style="margin-bottom: var(--space-4); display: inline-block;">Visualizing Your
+                    Momentum</span>
+                <h1 class="heading-1">Future You</h1>
+                <p class="text-lead" style="max-width: 600px; margin: var(--space-4) auto var(--space-6);">
+                    See how today's choices compound over time. Compare the smart path vs. the impulsive path.
+                </p>
+
+                <!-- Inflation Toggle -->
+                <div
+                    style="display:inline-flex; align-items:center; gap:var(--space-3); background:rgba(255,255,255,0.05); padding:8px 16px; border-radius:30px; border:1px solid var(--border-glass);">
+                    <span style="font-size:var(--text-sm); color:var(--text-muted); font-weight:500;">Inflation
+                        Adjusted</span>
+                    <label class="switch">
+                        <input type="checkbox" id="projInflationToggle">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- ═══ Future You Overlay ════════════════════════════════ -->
+            <div class="glass-card-sm future-you-card" id="futureYouCard">
+                <div class="fy-avatar-wrap">
+                    <div class="fy-avatar" id="fyAvatar">😐</div>
+                    <div class="fy-status-dot" id="fyStatusDot"></div>
+                </div>
+                <div class="fy-content">
+                    <div class="fy-title">Future You <span id="fyMood">is waiting...</span></div>
+                    <div class="fy-message" id="fyMessage">Make choices to see my reaction.</div>
+                </div>
+            </div>
+            <p class="subtitle animate-fade-in-up delay-2" style="margin: var(--space-4) auto 0;">
+                Compare the financial outcomes of disciplined decisions versus impulsive spending over 10 years.
+            </p>
+        </div>
+    </section>
+
+    <div class="container">
+
+        <!-- ═══ Stress Meter ══════════════════════════════════ -->
+        <div class="proj-stress glass-card-sm stable reveal" id="projStressMeter">
+            <div class="proj-stress-gauge">
+                <canvas id="projStressGauge" width="240" height="140"></canvas>
+            </div>
+            <div class="proj-stress-info">
+                <div class="proj-stress-label" id="projStressLabel" style="color:var(--emerald-400);">Financially Stable
+                </div>
+                <div class="proj-stress-sub" id="projStressSub">Smart decisions build resilience over time.</div>
+            </div>
+            <div class="proj-stress-score" id="projStressScore" style="color:var(--emerald-400);">78</div>
+        </div>
+
+        <!-- ═══ Split Screen — Smart vs Impulsive ═════════════ -->
+        <div class="split-screen">
+            <div class="split-panel panel-smart glass-card reveal">
+                <div class="panel-header">
+                    <div class="panel-avatar">🧠</div>
+                    <div>
+                        <div class="panel-name">Smart You</div>
+                        <div class="panel-subtitle">Saves 25%, invests wisely, minimal debt</div>
+                    </div>
+                </div>
+                <div class="panel-stats">
+                    <div>
+                        <div class="panel-stat-label">Net Worth</div>
+                        <div class="panel-stat-value" id="smartNetWorth">$0</div>
+                    </div>
+                    <div>
+                        <div class="panel-stat-label">Total Saved</div>
+                        <div class="panel-stat-value" id="smartSaved">$0</div>
+                    </div>
+                    <div>
+                        <div class="panel-stat-label">Debt Remaining</div>
+                        <div class="panel-stat-value" id="smartDebt">$0</div>
+                    </div>
+                    <div>
+                        <div class="panel-stat-label">Monthly Freedom</div>
+                        <div class="panel-stat-value" id="smartFreedom">$0</div>
+                    </div>
+                </div>
+                <canvas class="panel-chart" id="smart-chart"></canvas>
+            </div>
+
+            <div class="split-panel panel-impulsive glass-card reveal delay-2">
+                <div class="panel-header">
+                    <div class="panel-avatar">🔥</div>
+                    <div>
+                        <div class="panel-name">Impulsive You</div>
+                        <div class="panel-subtitle">Saves 5%, high lifestyle, accumulates debt</div>
+                    </div>
+                </div>
+                <div class="panel-stats">
+                    <div>
+                        <div class="panel-stat-label">Net Worth</div>
+                        <div class="panel-stat-value" id="impNetWorth">$0</div>
+                    </div>
+                    <div>
+                        <div class="panel-stat-label">Total Saved</div>
+                        <div class="panel-stat-value" id="impSaved">$0</div>
+                    </div>
+                    <div>
+                        <div class="panel-stat-label">Debt Remaining</div>
+                        <div class="panel-stat-value" id="impDebt">$0</div>
+                    </div>
+                    <div>
+                        <div class="panel-stat-label">Monthly Freedom</div>
+                        <div class="panel-stat-value" id="impFreedom">$0</div>
+                    </div>
+                </div>
+                <canvas class="panel-chart" id="impulsive-chart"></canvas>
+            </div>
+        </div>
+
+        <!-- ═══ Comparison Chart ═══════════════════════════════ -->
+        <div class="comparison-section glass-card reveal" style="padding:var(--space-6);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-4);">
+                <div>
+                    <div class="heading-4">Net Worth Comparison</div>
+                    <div style="font-size:var(--text-xs);color:var(--text-muted);margin-top:2px;">Side-by-side 10-year
+                        projection</div>
+                </div>
+                <div style="display:flex;gap:var(--space-4);">
+                    <div class="legend-item">
+                        <div class="legend-dot"
+                            style="background:var(--emerald-500);box-shadow:0 0 6px var(--emerald-glow);"></div>Smart
+                        You
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot"
+                            style="background:var(--coral-400);box-shadow:0 0 6px var(--coral-glow);"></div>Impulsive
+                        You
+                    </div>
+                </div>
+            </div>
+            <canvas id="comparison-chart"></canvas>
+        </div>
+
+        <!-- ═══ Financial Health Gauge ═════════════════════════ -->
+        <div class="section-divider" style="margin:var(--space-12) 0 var(--space-8);"><span>Financial Health</span>
+        </div>
+
+        <div class="gauge-section reveal">
+            <div class="gauge-container glass-card" style="padding:var(--space-8);">
+                <div
+                    style="font-size:var(--text-sm);font-weight:600;color:var(--text-secondary);margin-bottom:var(--space-4);">
+                    Health Score</div>
+                <canvas id="health-gauge"></canvas>
+                <div class="gauge-score text-gradient" id="healthScore">78</div>
+                <div class="gauge-label" id="healthLabel">Good Standing</div>
+            </div>
+
+            <div class="health-metrics">
+                <div class="glass-card-sm health-metric">
+                    <div class="health-metric-icon">🛡️</div>
+                    <h4>Emergency Fund</h4>
+                    <div class="metric-val val-positive" id="emergencyFund">6.2 months</div>
+                    <div class="metric-desc">Recommended: 6+ months of expenses</div>
+                </div>
+                <div class="glass-card-sm health-metric">
+                    <div class="health-metric-icon">📉</div>
+                    <h4>Debt-to-Income</h4>
+                    <div class="metric-val val-neutral" id="debtToIncome">18%</div>
+                    <div class="metric-desc">Below 20% is healthy</div>
+                </div>
+                <div class="glass-card-sm health-metric">
+                    <div class="health-metric-icon">💰</div>
+                    <h4>Savings Trajectory</h4>
+                    <div class="metric-val val-positive" id="savingsTrajectory">On Track</div>
+                    <div class="metric-desc">Based on your 10-year projection</div>
+                </div>
+                <div class="glass-card-sm health-metric">
+                    <div class="health-metric-icon">🎯</div>
+                    <h4>Financial Freedom</h4>
+                    <div class="metric-val val-neutral" id="freedomAge">Year 7</div>
+                    <div class="metric-desc">When passive income covers expenses</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ Year-by-Year Table ═════════════════════════════ -->
+        <div class="section-divider" style="margin:var(--space-12) 0 var(--space-8);"><span>Year-by-Year
+                Breakdown</span></div>
+
+        <div class="glass-card year-table-container reveal" style="padding:var(--space-4);">
+            <table class="year-table" id="yearTable">
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>Smart Net Worth</th>
+                        <th>Smart Savings</th>
+                        <th>Impulsive Net Worth</th>
+                        <th>Impulsive Savings</th>
+                        <th>Difference</th>
+                    </tr>
+                </thead>
+                <tbody id="yearTableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- ═══ CTA ════════════════════════════════════════════ -->
+        <div style="text-align:center;padding:var(--space-16) 0;">
+            <a href="insights.html" class="btn btn-primary btn-lg">Explore Insights →</a>
+            <a href="dashboard.html" class="btn btn-secondary btn-lg" style="margin-left:var(--space-4);">Adjust
+                Inputs</a>
+        </div>
+    </div>
+
+    <!-- ═══ Footer ═══════════════════════════════════════════ -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <span>© 2026 Life in Numbers. All rights reserved.</span>
+                <span>Built with purpose.</span>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/projection.js"></script>
+</body>
+
+</html>

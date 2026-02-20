@@ -1,0 +1,79 @@
+/* ── Toggle Switch ────────────────────────────────────────── */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 36px;
+    height: 20px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--navy-700);
+    transition: .4s;
+    border: 1px solid var(--border-glass);
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 2px;
+    bottom: 2px;
+    background-color: var(--text-muted);
+    transition: .4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border-radius: 50%;
+}
+
+input:checked+.slider {
+    background-color: var(--emerald-900);
+    border-color: var(--emerald-500);
+}
+
+input:checked+.slider:before {
+    transform: translateX(16px);
+    background-color: var(--emerald-400);
+}
+
+.slider.round {
+    border-radius: 20px;
+}
+
+/* Scenario Controls */
+.scenario-controls .btn-sm {
+    padding: 6px 12px;
+    font-size: var(--text-xs);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+.scenario-controls .btn-outline {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-glass);
+    color: var(--text-secondary);
+}
+
+.scenario-controls .btn-outline:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    border-color: var(--text-muted);
+}
+
+.scenario-controls .btn-outline.active {
+    background: rgba(16, 185, 129, 0.15);
+    border-color: var(--emerald-500);
+    color: var(--emerald-400);
+}

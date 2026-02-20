@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Life in Numbers — Simulate long-term financial consequences of your daily decisions. See your financial future before it happens.">
+  <title>Life in Numbers — Your Financial Future Is a Simulation Away</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* ── Landing-Page Specific ─────────────────────────────── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      padding-top: 80px;
+    }
+
+    #particles-canvas {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .hero-badge {
+      margin-bottom: var(--space-6);
+      animation: fadeInUp 0.6s var(--ease-out) forwards;
+    }
+
+    .hero h1 {
+      margin-bottom: var(--space-6);
+      animation: fadeInUp 0.7s var(--ease-out) 0.15s forwards;
+      opacity: 0;
+    }
+
+    .hero .subtitle {
+      margin: 0 auto var(--space-10);
+      animation: fadeInUp 0.7s var(--ease-out) 0.3s forwards;
+      opacity: 0;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-4);
+      animation: fadeInUp 0.7s var(--ease-out) 0.45s forwards;
+      opacity: 0;
+    }
+
+    .hero-graph-container {
+      position: relative;
+      z-index: 1;
+      margin-top: var(--space-16);
+      animation: fadeInUp 0.8s var(--ease-out) 0.6s forwards;
+      opacity: 0;
+    }
+
+    .hero-graph {
+      width: 100%;
+      max-width: 850px;
+      margin: 0 auto;
+      height: 280px;
+      position: relative;
+    }
+
+    .hero-graph svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .hero-glow {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.15;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .hero-glow-1 {
+      background: var(--emerald-500);
+      top: -200px;
+      right: -100px;
+    }
+
+    .hero-glow-2 {
+      background: var(--blue-500);
+      bottom: -200px;
+      left: -100px;
+    }
+
+    /* ── Stats Strip ──────────────────────────────────────── */
+    .stats-strip {
+      padding: var(--space-16) 0;
+      border-top: 1px solid var(--border-glass);
+      border-bottom: 1px solid var(--border-glass);
+      position: relative;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-8);
+      text-align: center;
+    }
+
+    .stat-item h3 {
+      font-size: var(--text-4xl);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: var(--space-2);
+    }
+
+    .stat-item p {
+      font-size: var(--text-sm);
+      color: var(--text-muted);
+    }
+
+    /* ── Features Section ─────────────────────────────────── */
+    .features-section {
+      padding: var(--space-24) 0;
+    }
+
+    .features-header {
+      text-align: center;
+      margin-bottom: var(--space-16);
+    }
+
+    .features-header .label {
+      margin-bottom: var(--space-4);
+      display: block;
+    }
+
+    .features-header h2 {
+      margin-bottom: var(--space-4);
+    }
+
+    .feature-card {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: var(--space-6);
+    }
+
+    .feature-icon.green {
+      background: rgba(16, 185, 129, 0.12);
+      color: var(--emerald-400);
+      box-shadow: 0 0 20px rgba(16,185,129,0.1);
+    }
+
+    .feature-icon.blue {
+      background: rgba(59, 130, 246, 0.12);
+      color: var(--blue-400);
+      box-shadow: 0 0 20px rgba(59,130,246,0.1);
+    }
+
+    .feature-icon.gold {
+      background: rgba(245, 158, 11, 0.12);
+      color: var(--gold-400);
+      box-shadow: 0 0 20px rgba(245,158,11,0.1);
+    }
+
+    .feature-card h3 {
+      font-size: var(--text-xl);
+      font-weight: 600;
+      margin-bottom: var(--space-3);
+      letter-spacing: -0.01em;
+    }
+
+    .feature-card p {
+      color: var(--text-secondary);
+      font-size: var(--text-sm);
+      line-height: 1.7;
+    }
+
+    .feature-card .feature-link {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      margin-top: var(--space-5);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--emerald-400);
+      transition: gap var(--duration-normal) var(--ease-out);
+    }
+
+    .feature-card:hover .feature-link {
+      gap: var(--space-3);
+    }
+
+    /* ── Demo Preview Section ─────────────────────────────── */
+    .demo-section {
+      padding: var(--space-24) 0;
+    }
+
+    .demo-container {
+      position: relative;
+      border-radius: var(--radius-2xl);
+      overflow: hidden;
+      border: 1px solid var(--border-glass);
+      background: var(--bg-card);
+      padding: var(--space-2);
+    }
+
+    .demo-inner {
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      background: var(--navy-800);
+      padding: var(--space-8);
+      min-height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .demo-inner canvas {
+      width: 100%;
+      height: 350px;
+    }
+
+    .demo-dots {
+      position: absolute;
+      top: var(--space-4);
+      left: var(--space-4);
+      display: flex;
+      gap: var(--space-2);
+    }
+
+    .demo-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--navy-500);
+    }
+
+    .demo-dot:first-child { background: var(--coral-500); }
+    .demo-dot:nth-child(2) { background: var(--gold-500); }
+    .demo-dot:nth-child(3) { background: var(--emerald-500); }
+
+    /* ── CTA Section ──────────────────────────────────────── */
+    .cta-section {
+      padding: var(--space-24) 0;
+      text-align: center;
+    }
+
+    .cta-card {
+      background: linear-gradient(135deg, var(--navy-700), var(--navy-800));
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-2xl);
+      padding: var(--space-20) var(--space-8);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 30% 50%, rgba(16,185,129,0.06) 0%, transparent 50%),
+                  radial-gradient(circle at 70% 50%, rgba(59,130,246,0.06) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .cta-card h2 {
+      position: relative;
+      margin-bottom: var(--space-4);
+    }
+
+    .cta-card p {
+      position: relative;
+      color: var(--text-secondary);
+      max-width: 500px;
+      margin: 0 auto var(--space-8);
+    }
+
+    .cta-card .btn {
+      position: relative;
+    }
+
+    /* ── Responsive ───────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); gap: var(--space-6); }
+      .hero-actions { flex-direction: column; }
+      .hero-graph { height: 200px; }
+    }
+
+    @media (max-width: 480px) {
+      .stats-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══ Navigation ═══════════════════════════════════════ -->
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-logo">
+        <div class="logo-icon">LN</div>
+        <span>Life in Numbers</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html" class="active">Home</a></li>
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="projection.html">Projections</a></li>
+        <li><a href="insights.html">Insights</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="dashboard.html" class="nav-cta">Start Simulation</a></li>
+      </ul>
+      <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">☰</button>
+    </div>
+  </nav>
+
+  <!-- ═══ Hero Section ═════════════════════════════════════ -->
+  <section class="hero">
+    <canvas id="particles-canvas"></canvas>
+    <div class="hero-glow hero-glow-1"></div>
+    <div class="hero-glow hero-glow-2"></div>
+
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span class="badge">✦ Financial Literacy Simulator</span>
+        </div>
+        <h1 class="heading-1">
+          Your Financial Future<br>
+          <span class="text-gradient">Is a Simulation Away.</span>
+        </h1>
+        <p class="subtitle">
+          Make smarter money decisions today by seeing their impact 10 years from now. 
+          No jargon, no guesswork — just clear, data-driven projections.
+        </p>
+        <div class="hero-actions">
+          <a href="dashboard.html" class="btn btn-primary btn-xl">
+            Begin Your Simulation →
+          </a>
+          <a href="about.html" class="btn btn-secondary btn-xl">
+            Learn More
+          </a>
+        </div>
+      </div>
+
+      <div class="hero-graph-container">
+        <div class="hero-graph">
+          <svg id="hero-line" viewBox="0 0 850 280" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#10b981" />
+                <stop offset="100%" stop-color="#3b82f6" />
+              </linearGradient>
+              <linearGradient id="areaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="rgba(16,185,129,0.25)" />
+                <stop offset="100%" stop-color="rgba(16,185,129,0)" />
+              </linearGradient>
+              <filter id="glow">
+                <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                <feMerge>
+                  <feMergeNode in="coloredBlur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+            <!-- Area fill -->
+            <path id="hero-area" fill="url(#areaGrad)" opacity="0" />
+            <!-- Line -->
+            <path id="hero-path" fill="none" stroke="url(#lineGrad)" stroke-width="3" 
+                  filter="url(#glow)" stroke-linecap="round" stroke-linejoin="round"
+                  stroke-dasharray="1200" stroke-dashoffset="1200" />
+            <!-- Grid lines -->
+            <line x1="0" y1="70" x2="850" y2="70" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+            <line x1="0" y1="140" x2="850" y2="140" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+            <line x1="0" y1="210" x2="850" y2="210" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Stats Strip ══════════════════════════════════════ -->
+  <section class="stats-strip reveal">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-item">
+          <h3 class="text-gradient counter" data-target="52000" data-prefix="">52,000+</h3>
+          <p>Simulations Run</p>
+        </div>
+        <div class="stat-item">
+          <h3 class="counter" data-target="2400000" data-prefix="$" style="color:var(--emerald-400)">$2.4M</h3>
+          <p>Average Wealth Unlocked</p>
+        </div>
+        <div class="stat-item">
+          <h3 class="counter" data-target="89" data-suffix="%" style="color:var(--blue-400)">89%</h3>
+          <p>Users Improved Savings</p>
+        </div>
+        <div class="stat-item">
+          <h3 class="counter" data-target="4.9" data-suffix="/5" style="color:var(--gold-400)">4.9/5</h3>
+          <p>User Satisfaction</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Features ═════════════════════════════════════════ -->
+  <section class="features-section">
+    <div class="container">
+      <div class="features-header reveal">
+        <span class="label label-emerald">How It Works</span>
+        <h2 class="heading-2">Three Steps to Financial Clarity</h2>
+        <p class="subtitle" style="margin: var(--space-4) auto 0;">
+          Our simulation engine models your decisions against real economic data to show you
+          the true cost of every financial choice.
+        </p>
+      </div>
+
+      <div class="grid-3">
+        <div class="glass-card feature-card reveal delay-1">
+          <div class="feature-icon green">📊</div>
+          <h3>Simulate Decisions</h3>
+          <p>Adjust your income, savings rate, loans, and lifestyle spending. Watch real-time projections shift with every change you make.</p>
+          <a href="dashboard.html" class="feature-link">Open Dashboard →</a>
+        </div>
+
+        <div class="glass-card feature-card reveal delay-2">
+          <div class="feature-icon blue">⚖️</div>
+          <h3>Compare Outcomes</h3>
+          <p>See the dramatic difference between disciplined and impulsive financial behavior over a 10-year projection window.</p>
+          <a href="projection.html" class="feature-link">View Projections →</a>
+        </div>
+
+        <div class="glass-card feature-card reveal delay-3">
+          <div class="feature-icon gold">💡</div>
+          <h3>Learn & Grow</h3>
+          <p>Understand opportunity cost, inflation impact, and the debt snowball effect through interactive, data-driven insights.</p>
+          <a href="insights.html" class="feature-link">Explore Insights →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Demo Preview ═════════════════════════════════════ -->
+  <section class="demo-section">
+    <div class="container">
+      <div class="features-header reveal">
+        <span class="label label-blue">Live Preview</span>
+        <h2 class="heading-2">Your Wealth, Visualized</h2>
+        <p class="subtitle" style="margin: var(--space-4) auto 0;">
+          Interactive projections that make complex financial data intuitive and actionable.
+        </p>
+      </div>
+
+      <div class="demo-container reveal delay-2">
+        <div class="demo-inner">
+          <div class="demo-dots">
+            <div class="demo-dot"></div>
+            <div class="demo-dot"></div>
+            <div class="demo-dot"></div>
+          </div>
+          <canvas id="demo-chart"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ CTA Section ══════════════════════════════════════ -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-card reveal">
+        <h2 class="heading-2">Ready to See Your<br><span class="text-gradient">Financial Future?</span></h2>
+        <p>Start your free simulation now and discover the long-term impact of your daily choices.</p>
+        <a href="dashboard.html" class="btn btn-primary btn-xl">Start Free Simulation →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Footer ═══════════════════════════════════════════ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" class="nav-logo" style="margin-bottom: var(--space-2);">
+            <div class="logo-icon">LN</div>
+            <span>Life in Numbers</span>
+          </a>
+          <p>Empowering smarter financial decisions through data-driven simulation and visualization.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Product</h4>
+          <ul>
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li><a href="projection.html">Projections</a></li>
+            <li><a href="insights.html">Insights</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="about.html#methodology">Methodology</a></li>
+            <li><a href="about.html#team">Team</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Connect</h4>
+          <ul>
+            <li><a href="#">Twitter</a></li>
+            <li><a href="#">LinkedIn</a></li>
+            <li><a href="#">GitHub</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 Life in Numbers. All rights reserved.</span>
+        <span>Built with purpose.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/landing.js"></script>
+</body>
+</html>

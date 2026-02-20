@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Life in Numbers Decision Dashboard — Adjust your financial inputs and see real-time projections.">
+    <title>Decision Dashboard — Life in Numbers</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles-advanced.css">
+    <style>
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: var(--space-6);
+            padding-top: calc(80px + var(--space-8));
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            position: sticky;
+            top: calc(80px + var(--space-8));
+            height: fit-content;
+            max-height: calc(100vh - 100px);
+            overflow-y: auto;
+            padding: var(--space-6);
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        .sidebar-title {
+            font-size: var(--text-2xl);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: var(--space-2);
+        }
+
+        .sidebar-subtitle {
+            font-size: var(--text-sm);
+            color: var(--text-muted);
+            margin-bottom: var(--space-6);
+        }
+
+        .main-content {
+            padding: var(--space-6);
+        }
+
+        /* ── Persona Selector ────────────────────────────────── */
+        .persona-bar {
+            display: flex;
+            background: var(--navy-800);
+            border-radius: var(--radius-full);
+            padding: 4px;
+            border: 1px solid var(--border-glass);
+            margin-bottom: var(--space-6);
+            position: relative;
+        }
+
+        .persona-bar::before {
+            content: '';
+            position: absolute;
+            top: 4px;
+            bottom: 4px;
+            border-radius: var(--radius-full);
+            background: linear-gradient(135deg, var(--navy-500), var(--navy-600));
+            box-shadow: var(--shadow-md);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 0;
+            width: calc(33.333% - 3px);
+            left: 4px;
+        }
+
+        .persona-bar[data-active="1"]::before {
+            left: calc(33.333% + 1px);
+        }
+
+        .persona-bar[data-active="2"]::before {
+            left: calc(66.666% - 2px);
+        }
+
+        .persona-btn {
+            flex: 1;
+            padding: var(--space-2) var(--space-3);
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: var(--text-sm);
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.3s var(--ease-out);
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+            border-radius: var(--radius-full);
+        }
+
+        .persona-btn.active {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .persona-btn:hover:not(.active) {
+            color: var(--text-secondary);
+        }
+
+        .persona-icon {
+            font-size: 1rem;
+        }
+
+        /* ── Stress Meter ────────────────────────────────────── */
+        .stress-meter-container {
+            display: flex;
+            align-items: center;
+            gap: var(--space-5);
+            padding: var(--space-5) var(--space-6);
+            margin-bottom: var(--space-6);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stress-meter-container::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            pointer-events: none;
+            transition: background 0.6s var(--ease-out);
+        }
+
+        .stress-meter-container.stable::before {
+            background: radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.06) 0%, transparent 60%);
+        }
+
+        .stress-meter-container.risk::before {
+            background: radial-gradient(circle at 20% 50%, rgba(245, 158, 11, 0.06) 0%, transparent 60%);
+        }
+
+        .stress-meter-container.danger::before {
+            background: radial-gradient(circle at 20% 50%, rgba(239, 68, 68, 0.06) 0%, transparent 60%);
+        }
+
+        .stress-gauge-wrap {
+            width: 120px;
+            height: 70px;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .stress-gauge-wrap canvas {
+            width: 120px;
+            height: 70px;
+        }
+
+        .stress-info {
+            flex: 1;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stress-label-text {
+            font-size: var(--text-sm);
+            font-weight: 600;
+            transition: color 0.4s var(--ease-out);
+            margin-bottom: 2px;
+        }
+
+        .stress-sublabel {
+            font-size: var(--text-xs);
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .stress-score {
+            font-size: var(--text-2xl);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            font-variant-numeric: tabular-nums;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ── Micro Copy Feedback ─────────────────────────────── */
+        .micro-feedback {
+            font-size: var(--text-xs);
+            font-weight: 500;
+            padding: var(--space-2) var(--space-4);
+            border-radius: var(--radius-full);
+            margin-bottom: var(--space-4);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            opacity: 0;
+            transform: translateY(-8px);
+            transition: all 0.4s var(--ease-out);
+            min-height: 32px;
+        }
+
+        .micro-feedback.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .micro-feedback.positive {
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--emerald-400);
+            border: 1px solid rgba(16, 185, 129, 0.15);
+        }
+
+        .micro-feedback.warning {
+            background: rgba(245, 158, 11, 0.08);
+            color: var(--gold-400);
+            border: 1px solid rgba(245, 158, 11, 0.15);
+        }
+
+        .micro-feedback.negative {
+            background: rgba(239, 68, 68, 0.08);
+            color: var(--coral-400);
+            border: 1px solid rgba(239, 68, 68, 0.12);
+        }
+
+        /* ── KPI row ─────────────────────────────────────────── */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--space-4);
+            margin-bottom: var(--space-4);
+        }
+
+        .kpi-card {
+            padding: var(--space-5);
+            text-align: left;
+            transition: all 0.3s var(--ease-out);
+            position: relative;
+        }
+
+        .kpi-card .kpi-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            margin-bottom: var(--space-3);
+        }
+
+        .kpi-card .kpi-value {
+            font-size: var(--text-2xl);
+            font-weight: 800;
+            margin-bottom: 2px;
+            transition: color 0.3s;
+        }
+
+        .kpi-card .kpi-label {
+            font-size: var(--text-xs);
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: var(--space-2);
+        }
+
+        /* Enhanced KPI Elements */
+        .kpi-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: var(--space-2);
+        }
+
+        .kpi-delta {
+            font-size: var(--text-xs);
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: var(--radius-sm);
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .kpi-delta.positive {
+            color: var(--emerald-400);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .kpi-delta.negative {
+            color: var(--coral-400);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .kpi-sparkline {
+            width: 60px;
+            height: 20px;
+        }
+
+        /* Shake animation for bad decisions */
+        @keyframes kpiShake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            20% {
+                transform: translateX(-4px);
+            }
+
+            40% {
+                transform: translateX(4px);
+            }
+
+            60% {
+                transform: translateX(-3px);
+            }
+
+            80% {
+                transform: translateX(2px);
+            }
+        }
+
+        .kpi-card.shake {
+            animation: kpiShake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+        }
+
+        @keyframes flashRed {
+            0% {
+                box-shadow: inset 0 0 0 1px rgba(239, 68, 68, 0);
+            }
+
+            30% {
+                box-shadow: inset 0 0 0 1px rgba(239, 68, 68, 0.4);
+            }
+
+            100% {
+                box-shadow: inset 0 0 0 1px rgba(239, 68, 68, 0);
+            }
+        }
+
+        .kpi-card.flash-red {
+            animation: flashRed 0.5s ease-out;
+        }
+
+        /* ── Warning Toast ───────────────────────────────────── */
+        .warning-toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(15, 22, 41, 0.92);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            color: var(--gold-400);
+            padding: var(--space-3) var(--space-5);
+            border-radius: var(--radius-lg);
+            font-size: var(--text-sm);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            z-index: 2000;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s var(--ease-out);
+            pointer-events: none;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .warning-toast.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .warning-toast.severity-high {
+            border-color: rgba(239, 68, 68, 0.3);
+            color: var(--coral-400);
+        }
+
+        /* ── Timeline ────────────────────────────────────────── */
+        .timeline-section {
+            margin-bottom: var(--space-6);
+        }
+
+        .timeline-bar {
+            display: flex;
+            gap: 2px;
+            background: var(--navy-800);
+            border-radius: var(--radius-lg);
+            padding: 3px;
+            border: 1px solid var(--border-glass);
+        }
+
+        .timeline-btn {
+            flex: 1;
+            padding: var(--space-2) var(--space-3);
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: var(--text-sm);
+            font-weight: 500;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.25s var(--ease-out);
+        }
+
+        .timeline-btn:hover {
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .timeline-btn.active {
+            background: var(--navy-600);
+            color: var(--text-primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Timeline progress bar */
+        .timeline-progress {
+            height: 3px;
+            background: var(--navy-700);
+            border-radius: 2px;
+            margin-top: var(--space-2);
+            overflow: hidden;
+        }
+
+        .timeline-progress-fill {
+            height: 100%;
+            border-radius: 2px;
+            background: linear-gradient(90deg, var(--emerald-500), var(--blue-500));
+            transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 0 8px var(--emerald-glow);
+        }
+
+        /* ── Chart ───────────────────────────────────────────── */
+        .chart-section {
+            margin-bottom: var(--space-6);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-4);
+        }
+
+        .chart-title {
+            font-size: var(--text-lg);
+            font-weight: 600;
+        }
+
+        .chart-legend {
+            display: flex;
+            gap: var(--space-4);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: var(--text-xs);
+            color: var(--text-secondary);
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        #main-chart {
+            width: 100%;
+            height: 380px;
+        }
+
+        /* Chart hover tooltip */
+        .chart-tooltip {
+            position: absolute;
+            background: rgba(15, 22, 41, 0.92);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: var(--space-3) var(--space-4);
+            font-size: var(--text-xs);
+            color: var(--text-primary);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s, transform 0.2s var(--ease-out);
+            transform: scale(0.95);
+            z-index: 100;
+            white-space: nowrap;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .chart-tooltip.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .chart-tooltip .tt-year {
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .chart-tooltip .tt-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 2px;
+        }
+
+        .chart-tooltip .tt-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        /* ── Breakdown ────────────────────────────────────────── */
+        .breakdown-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-4);
+        }
+
+        .breakdown-card {
+            padding: var(--space-5);
+        }
+
+        .breakdown-card h4 {
+            font-size: var(--text-sm);
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-2);
+        }
+
+        .breakdown-value {
+            font-size: var(--text-xl);
+            font-weight: 700;
+            margin-bottom: var(--space-3);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .breakdown-bar-bg {
+            height: 6px;
+            border-radius: 3px;
+            background: var(--navy-700);
+            overflow: hidden;
+        }
+
+        .breakdown-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.8s var(--ease-out);
+        }
+
+        .section-divider {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+            margin: var(--space-8) 0 var(--space-4);
+        }
+
+        .section-divider::before,
+        .section-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-glass);
+        }
+
+        .section-divider span {
+            font-size: var(--text-xs);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+        }
+
+        /* ── Smart Recommendations Section ───────────────────── */
+        .recommendations-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-4);
+            margin-top: var(--space-4);
+        }
+
+        .rec-card {
+            background: rgba(16, 185, 129, 0.05);
+            border: 1px solid rgba(16, 185, 129, 0.1);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+            transition: all 0.3s var(--ease-out);
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-3);
+        }
+
+        .rec-card:hover {
+            background: rgba(16, 185, 129, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .rec-icon {
+            font-size: 1.2rem;
+            background: rgba(16, 185, 129, 0.1);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .rec-content h5 {
+            font-size: var(--text-sm);
+            color: var(--emerald-400);
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .rec-content p {
+            font-size: var(--text-xs);
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* ── Behavioral Bias Popup ───────────────────────────── */
+        .bias-popup {
+            position: absolute;
+            background: var(--navy-800);
+            border: 1px solid var(--border-glass);
+            padding: var(--space-3) var(--space-4);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-xl);
+            z-index: 100;
+            width: 240px;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(10px) scale(0.95);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .bias-popup.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+
+        .bias-popup::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: -6px;
+            margin-top: -6px;
+            border: 6px solid transparent;
+            border-right-color: var(--navy-800);
+        }
+
+        .bias-title {
+            font-size: var(--text-xs);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .bias-desc {
+            font-size: var(--text-xs);
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* Bias popup colors */
+        .bias-popup.warning {
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+
+        .bias-popup.warning .bias-title {
+            color: var(--gold-400);
+        }
+
+        .bias-popup.danger {
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .bias-popup.danger .bias-title {
+            color: var(--coral-400);
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+                max-height: none;
+            }
+
+            .kpi-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .recommendations-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .kpi-row {
+                grid-template-columns: 1fr;
+            }
+
+            .breakdown-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ═══ Warning Toast ════════════════════════════════════ -->
+    <div class="warning-toast" id="warningToast">
+        <span>⚠️</span>
+        <span id="warningText">Warning: Long-term impact increases.</span>
+    </div>
+
+    <!-- ═══ Bias Alert Popups Container ══════════════════════ -->
+    <div id="biasAlertContainer"></div>
+
+    <!-- ═══ Navigation ═══════════════════════════════════════ -->
+    <nav class="navbar scrolled" id="navbar">
+        <div class="container-lg">
+            <a href="index.html" class="nav-logo">
+                <div class="logo-icon">LN</div>
+                <span>Life in Numbers</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="dashboard.html" class="active">Dashboard</a></li>
+                <li><a href="projection.html">Projections</a></li>
+                <li><a href="insights.html">Insights</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="projection.html" class="nav-cta">View Projections</a></li>
+            </ul>
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">☰</button>
+        </div>
+    </nav>
+
+    <div class="container-lg">
+        <div class="dashboard-layout">
+
+            <!-- ═══ Sidebar — Input Controls ═══════════════════ -->
+            <aside class="sidebar glass-card animate-slide-left" style="position:relative;">
+
+                <!-- Persona Selector -->
+                <div style="margin-bottom: var(--space-6);">
+                    <span class="label label-emerald" style="display:block;margin-bottom:var(--space-3);">Your
+                        Profile</span>
+                    <div class="persona-bar" id="personaBar" data-active="0">
+                        <button class="persona-btn active" data-persona="student">
+                            <span class="persona-icon">🎓</span> Student
+                        </button>
+                        <button class="persona-btn" data-persona="freelancer">
+                            <span class="persona-icon">💻</span> Freelancer
+                        </button>
+                        <button class="persona-btn" data-persona="salaried">
+                            <span class="persona-icon">🏢</span> Salaried
+                        </button>
+                    </div>
+
+                    <!-- Scenario Controls -->
+                    <div class="scenario-controls glass-card-sm"
+                        style="padding:var(--space-3); display:flex; gap:var(--space-2);">
+                        <button class="btn-sm btn-outline" id="saveScenarioBtn" style="flex:1;">💾 Save</button>
+                        <button class="btn-sm btn-outline" id="compareScenarioBtn" style="flex:1;">⚖️ Compare</button>
+                    </div>
+                </div>
+
+                <div class="sidebar-title">Your Inputs</div>
+                <p class="sidebar-subtitle">Adjust parameters and watch your financial future change in real time.</p>
+
+                <!-- Bias Popups will be appended relative to these groups via JS -->
+                <div class="slider-group" id="groupIncome">
+                    <div class="slider-header">
+                        <span class="slider-label">💼 Annual Income</span>
+                        <span class="slider-value" id="incomeValue">$60,000</span>
+                    </div>
+                    <input type="range" id="incomeSlider" min="20000" max="250000" value="60000" step="5000">
+                </div>
+
+                <div class="slider-group" id="groupSavings">
+                    <div class="slider-header">
+                        <span class="slider-label">🏦 Savings Rate</span>
+                        <span class="slider-value positive" id="savingsValue">20%</span>
+                    </div>
+                    <input type="range" id="savingsSlider" min="0" max="60" value="20" step="1">
+                </div>
+
+                <div class="slider-group" id="groupLoan">
+                    <div class="slider-header">
+                        <span class="slider-label">💳 Loan Amount</span>
+                        <span class="slider-value negative" id="loanValue">$25,000</span>
+                    </div>
+                    <input type="range" id="loanSlider" min="0" max="200000" value="25000" step="5000">
+                </div>
+
+                <div class="slider-group" id="groupLifestyle">
+                    <div class="slider-header">
+                        <span class="slider-label">🛍️ Lifestyle Spending</span>
+                        <span class="slider-value" id="lifestyleValue">$2,000/mo</span>
+                    </div>
+                    <input type="range" id="lifestyleSlider" min="500" max="10000" value="2000" step="100">
+                </div>
+
+                <div class="section-divider"><span>Advanced</span></div>
+
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">📈 Expected Return</span>
+                        <span class="slider-value" id="returnValue">7%</span>
+                    </div>
+                    <input type="range" id="returnSlider" min="1" max="15" value="7" step="0.5">
+                </div>
+
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">📊 Inflation Rate</span>
+                        <span class="slider-value" id="inflationValue">3%</span>
+                    </div>
+                    <input type="range" id="inflationSlider" min="1" max="10" value="3" step="0.5">
+                </div>
+
+                <a href="projection.html" class="btn btn-primary" style="width:100%; margin-top: var(--space-6);">
+                    View Full Projection →
+                </a>
+            </aside>
+
+            <!-- ═══ Main Content ═══════════════════════════════ -->
+            <main class="main-content">
+
+                <!-- Financial Stress Meter -->
+                <div class="stress-meter-container glass-card-sm stable" id="stressMeter">
+                    <div class="stress-gauge-wrap">
+                        <canvas id="stressGauge" width="240" height="140"></canvas>
+                    </div>
+                    <div class="stress-info">
+                        <div class="stress-label-text" id="stressLabel" style="color:var(--emerald-400);">Financially
+                            Stable</div>
+                        <div class="stress-sublabel" id="stressSublabel">Your financial trajectory is healthy.</div>
+                    </div>
+                    <div class="stress-score" id="stressScore" style="color:var(--emerald-400);">82</div>
+                </div>
+
+                <!-- Micro-Copy Feedback -->
+                <div class="micro-feedback" id="microFeedback">
+                    <span id="microIcon">✦</span>
+                    <span id="microText"></span>
+                </div>
+
+                <!-- Enhanced KPI Cards -->
+                <div class="kpi-row animate-fade-in-up">
+                    <div class="glass-card-sm kpi-card" id="kpiCardNetWorth">
+                        <div class="kpi-icon" style="background:rgba(16,185,129,0.1);color:var(--emerald-400);">💰</div>
+                        <div class="kpi-label">Net Worth (Year 10)</div>
+                        <div class="kpi-value" id="kpiNetWorth" style="color:var(--emerald-400);">$0</div>
+                        <div class="kpi-meta">
+                            <span class="kpi-delta positive" id="kpiDeltaNetWorth">▲ 5%</span>
+                            <canvas class="kpi-sparkline" id="sparkNetWorth"></canvas>
+                        </div>
+                    </div>
+                    <div class="glass-card-sm kpi-card" id="kpiCardSaved">
+                        <div class="kpi-icon" style="background:rgba(59,130,246,0.1);color:var(--blue-400);">🏦</div>
+                        <div class="kpi-label">Total Saved</div>
+                        <div class="kpi-value" id="kpiSaved" style="color:var(--blue-400);">$0</div>
+                        <div class="kpi-meta">
+                            <span class="kpi-delta positive" id="kpiDeltaSaved">▲ 3%</span>
+                            <canvas class="kpi-sparkline" id="sparkSaved"></canvas>
+                        </div>
+                    </div>
+                    <div class="glass-card-sm kpi-card" id="kpiCardDebt">
+                        <div class="kpi-icon" style="background:rgba(239,68,68,0.1);color:var(--coral-400);">💳</div>
+                        <div class="kpi-label">Remaining Debt</div>
+                        <div class="kpi-value" id="kpiDebt" style="color:var(--coral-400);">$0</div>
+                        <div class="kpi-meta">
+                            <span class="kpi-delta negative" id="kpiDeltaDebt">▼ 2%</span>
+                            <canvas class="kpi-sparkline" id="sparkDebt"></canvas>
+                        </div>
+                    </div>
+                    <div class="glass-card-sm kpi-card" id="kpiCardRoi">
+                        <div class="kpi-icon" style="background:rgba(245,158,11,0.1);color:var(--gold-400);">📈</div>
+                        <div class="kpi-label">Investment ROI</div>
+                        <div class="kpi-value" id="kpiRoi" style="color:var(--gold-400);">0%</div>
+                        <div class="kpi-meta">
+                            <span class="kpi-delta positive" id="kpiDeltaRoi">▲ 1%</span>
+                            <canvas class="kpi-sparkline" id="sparkRoi"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline -->
+                <div class="timeline-section animate-fade-in-up delay-2">
+                    <div class="timeline-bar">
+                        <button class="timeline-btn active" data-year="1">Year 1</button>
+                        <button class="timeline-btn" data-year="2">Year 2</button>
+                        <button class="timeline-btn" data-year="3">Year 3</button>
+                        <button class="timeline-btn" data-year="5">Year 5</button>
+                        <button class="timeline-btn" data-year="7">Year 7</button>
+                        <button class="timeline-btn" data-year="10">Year 10</button>
+                    </div>
+                    <div class="timeline-progress">
+                        <div class="timeline-progress-fill" id="timelineProgress" style="width: 10%;"></div>
+                    </div>
+                </div>
+
+                <!-- Main Chart -->
+                <div class="chart-section glass-card animate-fade-in-up delay-3"
+                    style="padding: var(--space-6); position: relative;">
+                    <div class="chart-header">
+                        <div>
+                            <div class="chart-title">Financial Projection</div>
+                            <div class="chart-controls"
+                                style="display:flex; align-items:center; gap:var(--space-2); margin-top:4px;">
+                                <span style="font-size:var(--text-xs); color:var(--text-muted);">Adjust for
+                                    Inflation:</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="inflationToggle">
+                                    <span class="slider round"></span>
+                                </label>
+                                <span style="font-size:var(--text-xs); color:var(--text-muted);">(Real Values)</span>
+                            </div>
+                        </div>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <div class="legend-dot"
+                                    style="background:var(--emerald-500);box-shadow:0 0 6px var(--emerald-glow);"></div>
+                                Net Worth
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-dot"
+                                    style="background:var(--blue-400);box-shadow:0 0 6px var(--blue-glow);"></div>
+                                Savings
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-dot"
+                                    style="background:var(--coral-400);box-shadow:0 0 6px var(--coral-glow);"></div>Debt
+                            </div>
+                        </div>
+                    </div>
+                    <canvas id="main-chart"></canvas>
+                    <div class="chart-tooltip" id="chartTooltip">
+                        <div class="tt-year" id="ttYear">Year 0</div>
+                        <div class="tt-row">
+                            <div class="tt-dot" style="background:#10b981;"></div><span id="ttNetWorth">$0</span>
+                        </div>
+                        <div class="tt-row">
+                            <div class="tt-dot" style="background:#60a5fa;"></div><span id="ttSavings">$0</span>
+                        </div>
+                        <div class="tt-row">
+                            <div class="tt-dot" style="background:#f87171;"></div><span id="ttDebt">$0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Breakdown -->
+                <div class="section-divider"><span>Year Breakdown</span></div>
+
+                <div class="breakdown-grid animate-fade-in-up delay-4">
+                    <div class="glass-card-sm breakdown-card">
+                        <h4>Annual Savings</h4>
+                        <div class="breakdown-value" id="bdSavings" style="color:var(--emerald-400);">$12,000</div>
+                        <div class="breakdown-bar-bg">
+                            <div class="breakdown-bar-fill" id="bdSavingsBar"
+                                style="width:40%;background:var(--emerald-500);"></div>
+                        </div>
+                    </div>
+                    <div class="glass-card-sm breakdown-card">
+                        <h4>Annual Spending</h4>
+                        <div class="breakdown-value" id="bdSpending" style="color:var(--coral-400);">$24,000</div>
+                        <div class="breakdown-bar-bg">
+                            <div class="breakdown-bar-fill" id="bdSpendingBar"
+                                style="width:60%;background:var(--coral-500);"></div>
+                        </div>
+                    </div>
+                    <div class="glass-card-sm breakdown-card">
+                        <h4>Investment Growth</h4>
+                        <div class="breakdown-value" id="bdGrowth" style="color:var(--blue-400);">$840</div>
+                        <div class="breakdown-bar-bg">
+                            <div class="breakdown-bar-fill" id="bdGrowthBar"
+                                style="width:20%;background:var(--blue-500);"></div>
+                        </div>
+                    </div>
+                    <div class="glass-card-sm breakdown-card">
+                        <h4>Loan Payments</h4>
+                        <div class="breakdown-value" id="bdLoan" style="color:var(--gold-400);">$6,000</div>
+                        <div class="breakdown-bar-bg">
+                            <div class="breakdown-bar-fill" id="bdLoanBar"
+                                style="width:30%;background:var(--gold-500);">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Opportunity Cost Card -->
+                    <div class="glass-card-sm breakdown-card" style="grid-column: span 2;">
+                        <h4>Opportunity Cost (10 Years)</h4>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div class="breakdown-value" id="bdOppCost"
+                                style="color:var(--coral-400); margin-bottom:0;">$0</div>
+                            <div style="font-size:var(--text-xs); color:var(--text-muted); text-align:right;">
+                                Lost potential growth<br>from spending & debt interest
+                            </div>
+                        </div>
+                        <div class="breakdown-bar-bg" style="margin-top:var(--space-3);">
+                            <div class="breakdown-bar-fill" id="bdOppCostBar"
+                                style="width:0%; background:var(--coral-500);"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Smart Recommendations -->
+                <div class="section-divider"><span>Coach Recommendations</span></div>
+                <div class="recommendations-grid animate-fade-in-up delay-5" id="recommendationsGrid">
+                    <!-- Dynamic cards injected via JS -->
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <footer class="footer" style="margin-top: var(--space-8);">
+        <div class="container-lg">
+            <div class="footer-bottom">
+                <span>© 2026 Life in Numbers. All rights reserved.</span>
+                <span>Built with purpose.</span>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/dashboard.js"></script>
+</body>
+
+</html>
