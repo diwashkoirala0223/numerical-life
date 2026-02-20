@@ -7,9 +7,338 @@
     <meta name="description" content="Life in Numbers — Compare Smart vs Impulsive financial outcomes over 10 years.">
     <title>Future Projections — Life in Numbers</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="styles-advanced.css">
     <style>
-        /* ... (existing styles) ... */
+        .proj-hero {
+            padding: calc(80px + var(--space-12)) 0 var(--space-8);
+            text-align: center;
+        }
+
+        .proj-hero .label {
+            display: block;
+            margin-bottom: var(--space-4);
+        }
+
+        /* Split Screen */
+        .split-screen {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-6);
+            margin-bottom: var(--space-8);
+        }
+
+        .split-panel {
+            border-radius: var(--radius-xl);
+            padding: var(--space-8);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .split-panel::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            pointer-events: none;
+        }
+
+        .panel-smart {
+            background: rgba(16, 185, 129, 0.04);
+            border: 1px solid rgba(16, 185, 129, 0.15);
+        }
+
+        .panel-smart::before {
+            background: radial-gradient(circle at 30% 20%, rgba(16, 185, 129, 0.08) 0%, transparent 60%);
+        }
+
+        .panel-impulsive {
+            background: rgba(239, 68, 68, 0.04);
+            border: 1px solid rgba(239, 68, 68, 0.12);
+        }
+
+        .panel-impulsive::before {
+            background: radial-gradient(circle at 70% 20%, rgba(239, 68, 68, 0.06) 0%, transparent 60%);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            margin-bottom: var(--space-6);
+        }
+
+        .panel-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+        }
+
+        .panel-smart .panel-avatar {
+            background: rgba(16, 185, 129, 0.15);
+        }
+
+        .panel-impulsive .panel-avatar {
+            background: rgba(239, 68, 68, 0.12);
+        }
+
+        .panel-name {
+            font-size: var(--text-lg);
+            font-weight: 700;
+        }
+
+        .panel-subtitle {
+            font-size: var(--text-xs);
+            color: var(--text-muted);
+        }
+
+        .panel-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+        }
+
+        .panel-stat-label {
+            font-size: var(--text-xs);
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+
+        .panel-stat-value {
+            font-size: var(--text-2xl);
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .panel-smart .panel-stat-value {
+            color: var(--emerald-400);
+        }
+
+        .panel-impulsive .panel-stat-value {
+            color: var(--coral-400);
+        }
+
+        .panel-chart {
+            width: 100%;
+            height: 200px;
+            border-radius: var(--radius-md);
+        }
+
+        /* Comparison Chart */
+        .comparison-section {
+            margin-bottom: var(--space-8);
+        }
+
+        #comparison-chart {
+            width: 100%;
+            height: 400px;
+        }
+
+        /* Health Gauge */
+        .gauge-section {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: var(--space-8);
+            align-items: center;
+            margin-bottom: var(--space-8);
+        }
+
+        .gauge-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #health-gauge {
+            width: 260px;
+            height: 160px;
+        }
+
+        .gauge-score {
+            font-size: var(--text-5xl);
+            font-weight: 900;
+            margin-top: -10px;
+            letter-spacing: -0.02em;
+        }
+
+        .gauge-label {
+            font-size: var(--text-sm);
+            color: var(--text-muted);
+            margin-top: var(--space-1);
+        }
+
+        .health-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-4);
+        }
+
+        .health-metric {
+            padding: var(--space-5);
+        }
+
+        .health-metric-icon {
+            font-size: 1.3rem;
+            margin-bottom: var(--space-3);
+        }
+
+        .health-metric h4 {
+            font-size: var(--text-sm);
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-2);
+        }
+
+        .health-metric .metric-val {
+            font-size: var(--text-xl);
+            font-weight: 700;
+        }
+
+        .health-metric .metric-desc {
+            font-size: var(--text-xs);
+            color: var(--text-muted);
+            margin-top: var(--space-2);
+        }
+
+        /* Year breakdown table */
+        .year-table-container {
+            overflow-x: auto;
+            margin-bottom: var(--space-8);
+        }
+
+        .year-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: var(--text-sm);
+        }
+
+        .year-table th {
+            text-align: left;
+            padding: var(--space-3) var(--space-4);
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: var(--text-xs);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .year-table td {
+            padding: var(--space-3) var(--space-4);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .year-table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .val-positive {
+            color: var(--emerald-400);
+        }
+
+        .val-negative {
+            color: var(--coral-400);
+        }
+
+        .val-neutral {
+            color: var(--blue-400);
+        }
+
+        @media (max-width: 1024px) {
+            .gauge-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ── Stress Meter (Projection) ────────────── */
+        .proj-stress {
+            display: flex;
+            align-items: center;
+            gap: var(--space-5);
+            padding: var(--space-5) var(--space-6);
+            margin-bottom: var(--space-8);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .proj-stress::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            pointer-events: none;
+            transition: background 0.6s var(--ease-out);
+        }
+
+        .proj-stress.stable::before {
+            background: radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.06) 0%, transparent 60%);
+        }
+
+        .proj-stress.risk::before {
+            background: radial-gradient(circle at 20% 50%, rgba(245, 158, 11, 0.06) 0%, transparent 60%);
+        }
+
+        .proj-stress.danger::before {
+            background: radial-gradient(circle at 20% 50%, rgba(239, 68, 68, 0.06) 0%, transparent 60%);
+        }
+
+        .proj-stress-gauge {
+            width: 120px;
+            height: 70px;
+            flex-shrink: 0;
+        }
+
+        .proj-stress-gauge canvas {
+            width: 120px;
+            height: 70px;
+        }
+
+        .proj-stress-info {
+            flex: 1;
+            position: relative;
+            z-index: 1;
+        }
+
+        .proj-stress-label {
+            font-size: var(--text-sm);
+            font-weight: 600;
+            margin-bottom: 2px;
+            transition: color 0.4s;
+        }
+
+        .proj-stress-sub {
+            font-size: var(--text-xs);
+            color: var(--text-muted);
+        }
+
+        .proj-stress-score {
+            font-size: var(--text-2xl);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            position: relative;
+            z-index: 1;
+        }
+
+        @media (max-width: 768px) {
+            .split-screen {
+                grid-template-columns: 1fr;
+            }
+
+            .panel-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .health-metrics {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 
@@ -37,38 +366,10 @@
     <!-- ═══ Header ═══════════════════════════════════════════ -->
     <section class="proj-hero">
         <div class="container">
-            <div class="proj-hero animate-fade-in-up">
-                <span class="label label-emerald"
-                    style="margin-bottom: var(--space-4); display: inline-block;">Visualizing Your
-                    Momentum</span>
-                <h1 class="heading-1">Future You</h1>
-                <p class="text-lead" style="max-width: 600px; margin: var(--space-4) auto var(--space-6);">
-                    See how today's choices compound over time. Compare the smart path vs. the impulsive path.
-                </p>
-
-                <!-- Inflation Toggle -->
-                <div
-                    style="display:inline-flex; align-items:center; gap:var(--space-3); background:rgba(255,255,255,0.05); padding:8px 16px; border-radius:30px; border:1px solid var(--border-glass);">
-                    <span style="font-size:var(--text-sm); color:var(--text-muted); font-weight:500;">Inflation
-                        Adjusted</span>
-                    <label class="switch">
-                        <input type="checkbox" id="projInflationToggle">
-                        <span class="slider round"></span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- ═══ Future You Overlay ════════════════════════════════ -->
-            <div class="glass-card-sm future-you-card" id="futureYouCard">
-                <div class="fy-avatar-wrap">
-                    <div class="fy-avatar" id="fyAvatar">😐</div>
-                    <div class="fy-status-dot" id="fyStatusDot"></div>
-                </div>
-                <div class="fy-content">
-                    <div class="fy-title">Future You <span id="fyMood">is waiting...</span></div>
-                    <div class="fy-message" id="fyMessage">Make choices to see my reaction.</div>
-                </div>
-            </div>
+            <span class="label label-blue animate-fade-in-up">Future Projections</span>
+            <h1 class="heading-2 animate-fade-in-up delay-1">
+                Two Paths. One <span class="text-gradient">Decade.</span>
+            </h1>
             <p class="subtitle animate-fade-in-up delay-2" style="margin: var(--space-4) auto 0;">
                 Compare the financial outcomes of disciplined decisions versus impulsive spending over 10 years.
             </p>
