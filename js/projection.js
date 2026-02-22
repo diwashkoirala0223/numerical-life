@@ -6,9 +6,26 @@
     'use strict';
 
     // ── Scenarios ──────────────────────────────────────────────
-    const income = 70000;
 
-    const smart = {
+    // Load data saved from dashboard.html (if available)
+    let dashData = null;
+    try {
+        const raw = localStorage.getItem('lin_dashboard');
+        if (raw) dashData = JSON.parse(raw);
+    } catch (e) { /* storage unavailable */ }
+
+    // Use dashboard inputs for the "smart" (user) scenario when available,
+    // otherwise fall back to the original hardcoded defaults.
+    const income = dashData ? dashData.income : 70000;
+
+    const smart = dashData ? {
+        savingsRate: dashData.savingsRate,
+        lifestyle: dashData.lifestyle,
+        loan: dashData.loan,
+        returnRate: dashData.returns,
+        loanRate: 0.05,
+        loanPayRate: 0.15
+    } : {
         savingsRate: 0.25,
         lifestyle: 1800,
         loan: 10000,
@@ -254,6 +271,27 @@
     drawComparison();
 
     // ── Health Gauge ───────────────────────────────────────────
+    function calcStressScore(d) {
+        // Mirrors the logic in dashboard.js calcStress()
+        let s = 100;
+        const debtRatio = d.loan / Math.max(d.income, 1);
+        if (debtRatio > 0.6) s -= 30; else if (debtRatio > 0.4) s -= 20; else if (debtRatio > 0.2) s -= 10;
+        if (d.savingsRate < 0.05) s -= 25; else if (d.savingsRate < 0.10) s -= 15; else if (d.savingsRate < 0.15) s -= 8;
+        if (d.inflation >= d.returns) s -= 20; else if (d.inflation > d.returns * 0.7) s -= 10;
+        const lifePct = (d.lifestyle * 12) / Math.max(d.income, 1);
+        if (lifePct > 0.6) s -= 20; else if (lifePct > 0.4) s -= 10; else if (lifePct > 0.3) s -= 5;
+        return Math.max(0, Math.min(100, Math.round(s)));
+    }
+
+    const userStressScore = dashData ? calcStressScore({
+        income: dashData.income,
+        loan: dashData.loan,
+        savingsRate: dashData.savingsRate,
+        inflation: dashData.inflation,
+        returns: dashData.returns,
+        lifestyle: dashData.lifestyle
+    }) : 78;
+
     function drawGauge() {
         const canvas = document.getElementById('health-gauge');
         if (!canvas) return;
@@ -264,7 +302,7 @@
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
         const cx = 130, cy = 140, radius = 110;
-        const score = 78;
+        const score = userStressScore;
         const startAngle = Math.PI;
         const endAngle = 2 * Math.PI;
         const scoreAngle = startAngle + (score / 100) * Math.PI;
@@ -358,7 +396,7 @@
         sc.style.width = '120px'; sc.style.height = '70px';
         sctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-        const score = 78;
+        const score = userStressScore;
         const cx = 60, cy = 65, r = 48;
         const startA = Math.PI, endA = 2 * Math.PI;
         let cur = 0;
@@ -408,10 +446,26 @@
         const label = document.getElementById('projStressLabel');
         const sub = document.getElementById('projStressSub');
         const scoreEl = document.getElementById('projStressScore');
-        if (meter) meter.classList.add('stable');
-        if (label) { label.textContent = 'Financially Stable'; label.style.color = '#10b981'; }
-        if (sub) sub.textContent = 'Smart decisions build resilience over time.';
-        if (scoreEl) { scoreEl.textContent = score; scoreEl.style.color = '#10b981'; }
+
+        let stateColor, stateLabel, stateSub, stateCls;
+        if (userStressScore >= 70) {
+            stateColor = '#10b981'; stateLabel = 'Financially Stable';
+            stateSub = 'Smart decisions build resilience over time.'; stateCls = 'stable';
+        } else if (userStressScore >= 50) {
+            stateColor = '#f59e0b'; stateLabel = 'Mild Risk';
+            stateSub = 'Some adjustments could strengthen your position.'; stateCls = 'risk';
+        } else if (userStressScore >= 30) {
+            stateColor = '#f87171'; stateLabel = 'Debt Pressure Building';
+            stateSub = 'Your debt load is affecting your trajectory.'; stateCls = 'danger';
+        } else {
+            stateColor = '#ef4444'; stateLabel = 'High Financial Stress';
+            stateSub = 'Immediate action recommended to improve outlook.'; stateCls = 'danger';
+        }
+
+        if (meter) { meter.classList.remove('stable', 'risk', 'danger'); meter.classList.add(stateCls); }
+        if (label) { label.textContent = stateLabel; label.style.color = stateColor; }
+        if (sub) sub.textContent = stateSub;
+        if (scoreEl) { scoreEl.textContent = userStressScore; scoreEl.style.color = stateColor; }
     })();
 
     // ── Scroll Reveal ──────────────────────────────────────────

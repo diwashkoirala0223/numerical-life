@@ -766,6 +766,19 @@
         if (checkBadDecisions) {
             previousInputs = { ...inputs };
         }
+
+        // ── Persist inputs to localStorage for projection.html ──
+        try {
+            localStorage.setItem('lin_dashboard', JSON.stringify({
+                income: inputs.income,
+                savingsRate: inputs.savingsRate,
+                loan: inputs.loan,
+                lifestyle: inputs.lifestyle,
+                returns: inputs.returns,
+                inflation: inputs.inflation,
+                selectedYear: selectedYear
+            }));
+        } catch (e) { /* storage unavailable — fail silently */ }
     }
 
     // ── Event Listeners ─────────────────────────────────────────
